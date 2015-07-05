@@ -101,7 +101,7 @@ function PrintStats()
     while S ≤ 81
         Seq = Sequence[S]
         @printf "(%d, %d):%4d " cld(Seq, 9) rem1(Seq, 9) LevelCount[S]
-        if (i ≥ 4)
+        if (i > 5)
             @printf "\n"
             i = 1
         else
