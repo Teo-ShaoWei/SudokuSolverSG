@@ -13,7 +13,7 @@ int SeqPtr = 0;
 int Sequence[81];
 
 int Count = 0;
-int LevelCount[81];
+int LevelCount[82];
 
 
 void SwapSeqEntries(int S1, int S2)
@@ -31,7 +31,7 @@ void InitEntry(int i, int j, int val)
      int SeqPtr2;
 
      // add suitable checks for data consistency
-     
+
 	 Entry[Square] = valbit;
 	 Block[InBlock[Square]] &= ~valbit;
 	 Col[InCol[Square]] &= ~valbit; // Simpler Col[j] &= ~valbit;
@@ -50,7 +50,7 @@ void PrintArray()
 {
      int i, j, valbit, val, Square;
      char ch;
-     
+
      Square = 0;
 
      for (i = 0; i < 9; i++) {
@@ -60,12 +60,12 @@ void PrintArray()
              valbit = Entry[Square++];
              if (valbit == 0) ch = '-';
              else {
-                 for (val = 1; val <= 9; val++) 
+                 for (val = 1; val <= 9; val++)
                      if (valbit == (1 << val)) {
                         ch = '0' + val;
                         break;
                      }
-             }    
+             }
              putc(ch,stdout);
          }
          putc ('\n', stdout);
@@ -84,7 +84,7 @@ void ConsoleInput()
 
          for (j = 0; j < 9; j++) {
              char ch = InputString[j];
-             if (ch >= '1' && ch <= '9') 
+             if (ch >= '1' && ch <= '9')
                 InitEntry(i, j, ch - '0');
          }
      }
@@ -176,7 +176,7 @@ void Place(int S)
           Block[BlockIndex] &= ~valbit;
           Row[RowIndex] &= ~valbit;
           Col[ColIndex] &= ~valbit;
-				
+
           Place(S + 1);
 
           Entry[Square] = BLANK; // Could be moved out of the loop
@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
         LevelCount[Square] = 0;
     }
 
-	for (i = 0; i < 9; i++) 
+	for (i = 0; i < 9; i++)
 		Block[i] = Row[i] = Col[i] = ONES;
 
     ConsoleInput();
