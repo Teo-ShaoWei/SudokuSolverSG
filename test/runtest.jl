@@ -19,13 +19,27 @@ function generateTestCase()
 end
 
 @time facts("System test.") do
-    (stdin_read, stdin) = redirect_stdin()
+    originalSTDIN = STDIN
+    (_, stdin) = redirect_stdin()
+
+    originalSTDOUT = STDOUT
+    (stdout, _) = redirect_stdout()
+
     write(stdin, generateTestCase())
 
     main()
 
+    redirect_stdin(originalSTDIN)
+    redirect_stdout(originalSTDOUT)
+
+    cd(dirname(@__FILE__)) do
+        writedlm("result", [readavailable(stdout)])
+
+        result = readall("result")
+        expected = readall("expected")
+
+        @fact result => expected
+    end
 end
 
 end #TestCapsule
-
-STDOUT
