@@ -203,6 +203,9 @@ function main()
         Block[i] = Row[i] = Col[i] = ONES
     end
 
+    global SeqPtr = 1
+    global Count = 0
+
     ConsoleInput()
     Place(SeqPtr)
     @printf "\n\nTotal Count = %d\n" Count
