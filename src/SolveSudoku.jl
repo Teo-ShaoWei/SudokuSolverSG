@@ -207,9 +207,6 @@ function initializeGlobalVariables()
         IN_ROW[Square] = i
         IN_COL[Square] = j
         IN_BLOCK[Square] = 3 * (cld(i, 3) - 1) + cld(j, 3)
-    end
-
-    for Square in 1:81
         SEQUENCE[Square] = Square
         ENTRY[Square] = BLANK
         LEVEL_COUNT[Square] = 0
