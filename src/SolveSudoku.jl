@@ -179,6 +179,17 @@ function Place(S::Int)
 end
 
 
+# Set entry of given `square` to be the possible value represented by `value`.
+# E.g. if `square == 1` and `value == 0x100` (representing 2 for 2 trailing zeroes),
+# then we will set entry of square (1, 1) with the value of 2.
+# Notice that we will also remove 2 as a choice for the remaining empty squares.
+function setEntry(square::Int, value::PossibleValue)
+    ENTRY[square] = value
+    BLOCK[IN_BLOCK[square]] &= ~value
+    ROW[IN_ROW[square]] &= ~value
+    COL[IN_COL[square]] &= ~value
+end
+
 
 function main()
     for i in 1:9, j in 1:9
