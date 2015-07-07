@@ -16,11 +16,8 @@ LEVEL_COUNT = Array(Int, 82)
 
 
 function SwapSeqEntries(S1::Int, S2::Int)
-    temp = SEQUENCE[S2]
-    SEQUENCE[S2] = SEQUENCE[S1]
-    SEQUENCE[S1] = temp
+    (SEQUENCE[S1], SEQUENCE[S2]) = (SEQUENCE[S2], SEQUENCE[S1])
 end
-
 
 function InitEntry(i::Int, j::Int, val::Int)
     global SEQ_PTR
