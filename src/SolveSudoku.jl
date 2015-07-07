@@ -156,25 +156,21 @@ function Place(S::Int)
 
     Square = SEQUENCE[S]
 
-    BlockIndex = IN_BLOCK[Square]
-    RowIndex = IN_ROW[Square]
-    ColIndex = IN_COL[Square]
-
-    Possibles = BLOCK[BlockIndex] & ROW[RowIndex] & COL[ColIndex]
+    Possibles = BLOCK[IN_BLOCK[Square]] & ROW[IN_ROW[Square]] & COL[IN_COL[Square]]
     while Possibles != 0
         valbit = Possibles & (-Possibles) #Lowest 1 bit in Possibles.
         Possibles &= ~valbit
         ENTRY[Square] = valbit
-        BLOCK[BlockIndex] &= ~valbit
-        ROW[RowIndex] &= ~valbit
-        COL[ColIndex] &= ~valbit
+        BLOCK[IN_BLOCK[Square]] &= ~valbit
+        ROW[IN_ROW[Square]] &= ~valbit
+        COL[IN_COL[Square]] &= ~valbit
 
         Place(S + 1)
 
         ENTRY[Square] = BLANK #Could be moved out of the loop.
-        BLOCK[BlockIndex] |= valbit
-        ROW[RowIndex] |= valbit
-        COL[ColIndex] |= valbit
+        BLOCK[IN_BLOCK[Square]] |= valbit
+        ROW[IN_ROW[Square]] |= valbit
+        COL[IN_COL[Square]] |= valbit
     end
 
     SwapSeqEntries(S, S2)
