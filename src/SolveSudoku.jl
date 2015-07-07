@@ -191,6 +191,17 @@ end
 
 
 function main()
+    initializeGlobalVariables()
+    ConsoleInput()
+    Place(SEQ_PTR)
+    @printf "\n\nTotal COUNT = %d\n" COUNT
+
+    return 0
+end
+
+
+# Initialize the global variable.
+function initializeGlobalVariables()
     for i in 1:9, j in 1:9
         Square = 9(i - 1) + j
         IN_ROW[Square] = i
@@ -210,12 +221,6 @@ function main()
 
     global SEQ_PTR = 1
     global COUNT = 0
-
-    ConsoleInput()
-    Place(SEQ_PTR)
-    @printf "\n\nTotal COUNT = %d\n" COUNT
-
-    return 0
 end
 
 
