@@ -162,11 +162,11 @@ function Place(S::Int)
         setEntry(Square, valbit)
         Place(S + 1)
 
-        ENTRY[Square] = BLANK #Could be moved out of the loop.
         BLOCK[IN_BLOCK[Square]] |= valbit
         ROW[IN_ROW[Square]] |= valbit
         COL[IN_COL[Square]] |= valbit
     end
+    ENTRY[Square] = BLANK #Yes, we move it to outside the loop.
 
     SwapSeqEntries(S, S2)
 end
