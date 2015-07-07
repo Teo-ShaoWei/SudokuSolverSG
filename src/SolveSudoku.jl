@@ -161,12 +161,8 @@ function Place(S::Int)
         Possibles &= ~valbit
         setEntry(Square, valbit)
         Place(S + 1)
-
-        BLOCK[IN_BLOCK[Square]] |= valbit
-        ROW[IN_ROW[Square]] |= valbit
-        COL[IN_COL[Square]] |= valbit
+        clearEntry(Square)
     end
-    ENTRY[Square] = BLANK #Yes, we move it to outside the loop.
 
     SwapSeqEntries(S, S2)
 end
@@ -181,6 +177,16 @@ function setEntry(square::Int, value::PossibleValue)
     BLOCK[IN_BLOCK[square]] &= ~value
     ROW[IN_ROW[square]] &= ~value
     COL[IN_COL[square]] &= ~value
+end
+
+# Clear entry does the opposite of set entry.
+# Clear entry of given `square` will remove its value from the corresponding entry,
+# while reinstating its possibility to be use by other empty squares.
+function clearEntry(square::Int)
+    BLOCK[IN_BLOCK[square]] |= ENTRY[square]
+    ROW[IN_ROW[square]] |= ENTRY[square]
+    COL[IN_COL[square]] |= ENTRY[square]
+    ENTRY[square] = BLANK
 end
 
 
