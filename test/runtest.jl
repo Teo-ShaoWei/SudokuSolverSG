@@ -22,19 +22,21 @@ expectedOutput() = "ROW[1] : ROW[2] : ROW[3] : ROW[4] : ROW[5] : ROW[6] : ROW[7]
 
 @time facts("System test.") do
     originalSTDIN = STDIN
-    (_, stdin) = redirect_stdin()
-
     originalSTDOUT = STDOUT
-    (stdout, _) = redirect_stdout()
+    # Redirecting of STDIN and STDOUT are volatile operations, and a try-finally clause make sure they always revert back to normal.
+    try
+        (_, stdin) = redirect_stdin()
+        (stdout, _) = redirect_stdout()
 
-    write(stdin, generateTestCase())
+        write(stdin, generateTestCase())
 
-    main()
+        main()
 
-    redirect_stdin(originalSTDIN)
-    redirect_stdout(originalSTDOUT)
-
-    @fact readavailable(stdout) => expectedOutput()
+        @fact readavailable(stdout) => expectedOutput()
+    finally
+        redirect_stdin(originalSTDIN)
+        redirect_stdout(originalSTDOUT)
+    end
 end
 
 end #TestCapsule
