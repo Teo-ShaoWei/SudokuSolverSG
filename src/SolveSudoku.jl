@@ -1,12 +1,14 @@
 module SudokuSolver
 
+typealias PossibleValue Uint
+
 IN_BLOCK = Array(Int, 81); IN_ROW = Array(Int, 81); IN_COL = Array(Int, 81)
 
 const BLANK = 0
-const ONES = 0x3fe
+const ONES = 0x3fe #0x1111111110
 
-ENTRY = Array(Int,81)
-BLOCK = Array(Int, 9); ROW = Array(Int, 9); COL = Array(Int, 9)
+ENTRY = Array(PossibleValue, 81)
+BLOCK = Array(PossibleValue, 9); ROW = Array(PossibleValue, 9); COL = Array(PossibleValue, 9)
 
 SEQ_PTR = 1
 SEQUENCE = Array(Int, 81)
