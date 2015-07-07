@@ -25,14 +25,11 @@ function InitEntry(i::Int, j::Int, val::Int)
     global SEQ_PTR
 
     Square = 9(i - 1) + j
-    valbit = 1 << val
+    valbit::PossibleValue = 1 << val
 
     # Add suitable checks for data consistency.
 
-    ENTRY[Square] = valbit
-    BLOCK[IN_BLOCK[Square]] &= ~valbit
-    COL[IN_COL[Square]] &= ~valbit #Simpler COL[j] &= ~valbit
-    ROW[IN_ROW[Square]] &= ~valbit #Simpler ROW[i] &= ~valbit
+    setEntry(Square, valbit)
 
     SeqPtr2 = SEQ_PTR
     while SeqPtr2 ≤ 81 && SEQUENCE[SeqPtr2] != Square
@@ -162,11 +159,7 @@ function Place(S::Int)
     while Possibles != 0
         valbit = Possibles & (-Possibles) #Lowest 1 bit in Possibles.
         Possibles &= ~valbit
-        ENTRY[Square] = valbit
-        BLOCK[IN_BLOCK[Square]] &= ~valbit
-        ROW[IN_ROW[Square]] &= ~valbit
-        COL[IN_COL[Square]] &= ~valbit
-
+        setEntry(Square, valbit)
         Place(S + 1)
 
         ENTRY[Square] = BLANK #Could be moved out of the loop.
