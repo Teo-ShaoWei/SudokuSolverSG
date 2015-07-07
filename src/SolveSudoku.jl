@@ -122,7 +122,7 @@ function NextSeq(S::Int)
 
     for T in S:81
         Square = SEQUENCE[T]
-        Possibles = BLOCK[IN_BLOCK[Square]] & ROW[IN_ROW[Square]] & COL[IN_COL[Square]]
+        Possibles = getRemainingNumbers(Square)
         BitCount = 0
         while Possibles != 0
             Possibles &= ~(Possibles & -Possibles)
@@ -155,7 +155,7 @@ function Place(S::Int)
 
     Square = SEQUENCE[S]
 
-    Possibles = BLOCK[IN_BLOCK[Square]] & ROW[IN_ROW[Square]] & COL[IN_COL[Square]]
+    Possibles = getRemainingNumbers(Square)
     while Possibles != 0
         valbit = Possibles & (-Possibles) #Lowest 1 bit in Possibles.
         Possibles &= ~valbit
@@ -166,6 +166,10 @@ function Place(S::Int)
 
     SwapSeqEntries(S, S2)
 end
+
+
+# Get the remaining number left that can be filled into given `square`.
+getRemainingNumbers(square::Int) = BLOCK[IN_BLOCK[square]] & ROW[IN_ROW[square]] & COL[IN_COL[square]]
 
 
 # Set entry of given `square` to be the possible value represented by `value`.
