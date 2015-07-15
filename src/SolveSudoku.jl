@@ -29,7 +29,7 @@ function InitEntry(i::Int, j::Int, val::Int)
 
     # Add suitable checks for data consistency.
 
-    setEntry(Square, valbit)
+    setCell(Square, valbit)
 
     SeqPtr2 = SEQ_PTR
     while SeqPtr2 ≤ 81 && SEQUENCE[SeqPtr2] != Square
@@ -159,9 +159,9 @@ function Place(S::Int)
     while Possibles != 0
         valbit = Possibles & (-Possibles) #Lowest 1 bit in Possibles.
         Possibles &= ~valbit
-        setEntry(Square, valbit)
+        setCell(Square, valbit)
         Place(S + 1)
-        clearEntry(Square)
+        clearCell(Square)
     end
 
     SwapSeqEntries(S, S2)
@@ -172,21 +172,21 @@ end
 getRemainingNumbers(square::Int) = BLOCK[IN_BLOCK[square]] & ROW[IN_ROW[square]] & COL[IN_COL[square]]
 
 
-# Set entry of given `square` to be the possible value represented by `value`.
+# Set cell 'square' to be the possible value represented by `value`.
 # E.g. if `square == 1` and `value == 0x100` (representing 2 for 2 trailing zeroes),
 # then we will set entry of square (1, 1) with the value of 2.
 # Notice that we will also remove 2 as a choice for the remaining empty squares.
-function setEntry(square::Int, value::PossibleValue)
-    setNumberToCell(square, value)
+function setCell(square::Int, value::PossibleValue)
+    writeNumberToCell(square, value)
     removeNumberFromBlock(square, value)
     removeNumberFromRow(square, value)
     removeNumberFromCol(square, value)
 end
 
-# Clear entry does the opposite of set entry.
-# Clear entry of given `square` will remove its value from the corresponding entry,
+# Clear cell does the opposite of set cell.
+# Clear cell `square` will remove its value from the corresponding entry,
 # while reinstating its possibility to be use by other empty squares.
-function clearEntry(square::Int)
+function clearCell(square::Int)
     returnNumberToBlock(square)
     returnNumberToRow(square)
     returnNumberToCol(square)
@@ -194,8 +194,8 @@ function clearEntry(square::Int)
 end
 
 
-# Set number to cell.
-function setNumberToCell(square::Int, value::PossibleValue)
+# Write number to cell.
+function writeNumberToCell(square::Int, value::PossibleValue)
     ENTRY[square] = value
 end
 # Erase number from cell.
