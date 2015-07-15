@@ -22,7 +22,7 @@ end
 function InitEntry(i::Int, j::Int, val::Int)
     global SEQ_PTR
 
-    Square = 9(i - 1) + j
+    Square = getCell(i, j)
     valbit::PossibleValue = 1 << val
 
     # Add suitable checks for data consistency.
@@ -170,6 +170,10 @@ end
 getRemainingNumbers(square::Int) = BLOCK[IN_BLOCK[square]] & ROW[IN_ROW[square]] & COL[IN_COL[square]]
 
 
+# Get cell number from row and column index.
+getCell(i::Int, j::Int) = 9(i - 1) + j
+
+
 # Set cell 'square' to be the possible value represented by `value`.
 # E.g. if `square == 1` and `value == 0x100` (representing 2 for 2 trailing zeroes),
 # then we will set entry of square (1, 1) with the value of 2.
@@ -239,7 +243,7 @@ end
 # Initialize the global variable.
 function initializeGlobalVariables()
     for i in 1:9, j in 1:9
-        Square = 9(i - 1) + j
+        Square = getCell(i, j)
         IN_ROW[Square] = i
         IN_COL[Square] = j
         IN_BLOCK[Square] = 3 * (cld(i, 3) - 1) + cld(j, 3)
