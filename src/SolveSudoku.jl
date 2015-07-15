@@ -177,20 +177,54 @@ getRemainingNumbers(square::Int) = BLOCK[IN_BLOCK[square]] & ROW[IN_ROW[square]]
 # then we will set entry of square (1, 1) with the value of 2.
 # Notice that we will also remove 2 as a choice for the remaining empty squares.
 function setEntry(square::Int, value::PossibleValue)
-    ENTRY[square] = value
-    BLOCK[IN_BLOCK[square]] &= ~value
-    ROW[IN_ROW[square]] &= ~value
-    COL[IN_COL[square]] &= ~value
+    setNumberToCell(square, value)
+    removeNumberFromBlock(square, value)
+    removeNumberFromRow(square, value)
+    removeNumberFromCol(square, value)
 end
 
 # Clear entry does the opposite of set entry.
 # Clear entry of given `square` will remove its value from the corresponding entry,
 # while reinstating its possibility to be use by other empty squares.
 function clearEntry(square::Int)
-    BLOCK[IN_BLOCK[square]] |= ENTRY[square]
-    ROW[IN_ROW[square]] |= ENTRY[square]
-    COL[IN_COL[square]] |= ENTRY[square]
+    returnNumberToBlock(square)
+    returnNumberToRow(square)
+    returnNumberToCol(square)
+    eraseNumberFromCell(square)
+end
+
+
+# Set number to cell.
+function setNumberToCell(square::Int, value::PossibleValue)
+    ENTRY[square] = value
+end
+# Erase number from cell.
+function eraseNumberFromCell(square::Int)
     ENTRY[square] = BLANK
+end
+
+
+# Remove the number from corresponding (block/row/column) because it has been allocated to a cell within them.
+function removeNumberFromBlock(square::Int, value::PossibleValue)
+    BLOCK[IN_BLOCK[square]] &= ~value
+end
+function removeNumberFromRow(square::Int, value::PossibleValue)
+    ROW[IN_ROW[square]] &= ~value
+end
+function removeNumberFromCol(square::Int, value::PossibleValue)
+    COL[IN_COL[square]] &= ~value
+end
+
+
+# Return the number to corresponding (block/row/column) because it is freed from a cell within them.
+function returnNumberToBlock(square::Int)
+    BLOCK[IN_BLOCK[square]] |= ENTRY[square]
+end
+function returnNumberToRow(square::Int)
+    ROW[IN_ROW[square]] |= ENTRY[square]
+end
+function returnNumberToCol(square::Int)
+    COL[IN_COL[square]] |= ENTRY[square]
 end
 
 
