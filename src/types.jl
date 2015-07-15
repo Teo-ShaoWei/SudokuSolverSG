@@ -1,9 +1,8 @@
 # Represents the number to fill into a cell, i.e. 1 to 9.
-typealias Number Int
+typealias Number Uint
 
 # Represents a subset of {1, 2, ..., 9},
 # which in turn represents the leftover number that can be use to fill the corresponding cells.
-typealias PossibleValue Uint
 typealias LeftoverNumbers Uint
 
 # Represents the index of a cell.
