@@ -1,6 +1,6 @@
 module SudokuSolver
 
-typealias PossibleValue Uint
+include("types.jl")
 
 IN_BLOCK = Array(Int, 81); IN_ROW = Array(Int, 81); IN_COL = Array(Int, 81)
 
