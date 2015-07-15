@@ -12,7 +12,7 @@ typealias Index Int
 
 # The state of the game currently.
 # This will evolve as the Sudoku puzzle is being solved.
-type gameState
+type GameState
     cell::Vector{Number}
 
     leftoverNumbers_block::Vector{LeftoverNumbers}
@@ -30,7 +30,7 @@ type gameState
     levelCount::Vector{Int}
 end
 
-function gameState()
+function GameState()
     cell = Array(Number, 81)
 
     leftoverNumbers_block = Array(LeftoverNumbers, 9)
@@ -65,7 +65,7 @@ function gameState()
     end
 
 
-    return gameState(cell,
+    return GameState(cell,
 
                      leftoverNumbers_block,
                      leftoverNumbers_row,
