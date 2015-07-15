@@ -47,6 +47,24 @@ function gameState()
     currentCount = zero(Int)
     levelCount = Array(Int, 82)
 
+    for i in 1:9, j in 1:9
+        square = getCell(i, j)
+
+        cell[square] = BLANK
+
+        block_of[square] = 3 * (cld(i, 3) - 1) + cld(j, 3)
+        row_of[square] = i
+        col_of[square] = j
+
+        sequence[square] = square
+        levelCount[square] = zero(Int)
+    end
+
+    for i in 1:9
+        leftoverNumbers_block[i] = leftoverNumbers_row[i] = leftoverNumbers_col[i] = ONES
+    end
+
+
     return gameState(cell,
 
                      leftoverNumbers_block,
