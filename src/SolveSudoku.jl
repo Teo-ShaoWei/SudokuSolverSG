@@ -10,14 +10,14 @@ function SwapSeqEntries(gs::GameState, S1::Int, S2::Int)
 end
 
 function InitEntry(gs::GameState, i::Int, j::Int, number::Number)
-    Square = getCell(i, j)
+    cell = getCell(i, j)
 
     # Add suitable checks for data consistency.
 
-    setCell(gs, Square, number)
+    setCell(gs, cell, number)
 
     SeqPtr2 = gs.sequencePointer
-    while SeqPtr2 ≤ 81 && gs.sequence[SeqPtr2] != Square
+    while SeqPtr2 ≤ 81 && gs.sequence[SeqPtr2] != cell
         SeqPtr2 += 1
     end
 
@@ -27,14 +27,14 @@ end
 
 
 function PrintArray(gs::GameState)
-    Square = 1
+    cell = 1
 
     for i in 1:9
         (i % 3 == 1) && println()
         for j in 1:9
             (j % 3 == 1) && print(' ')
-            number = gs.cell[Square]
-            Square += 1
+            number = gs.cells[cell]
+            cell += 1
             if number ∈ [1:9]
                 ch = '0' + number
             else
@@ -101,8 +101,8 @@ function NextSeq(gs::GameState, S::Int)
     MinBitCount = 100
 
     for T in S:81
-        Square = gs.sequence[T]
-        Possibles = getRemainingNumbers(gs, Square)
+        cell = gs.sequence[T]
+        Possibles = getRemainingNumbers(gs, cell)
         BitCount = getSize(Possibles)
 
         if BitCount < MinBitCount
@@ -115,7 +115,7 @@ function NextSeq(gs::GameState, S::Int)
 end
 
 
-function Place(gs::GameState, S::Index)
+function Place(gs::GameState, S::Cell)
     gs.levelCount[S] += 1
     gs.currentCount += 1
 
@@ -127,69 +127,69 @@ function Place(gs::GameState, S::Index)
     S2 = NextSeq(gs, S)
     SwapSeqEntries(gs, S, S2)
 
-    Square = gs.sequence[S]
+    cell = gs.sequence[S]
 
-    Possibles = getRemainingNumbers(gs, Square)
+    Possibles = getRemainingNumbers(gs, cell)
     for number in Possibles
-        setCell(gs, Square, number)
+        setCell(gs, cell, number)
         Place(gs, S + 1)
-        clearCell(gs, Square)
+        clearCell(gs, cell)
     end
 
     SwapSeqEntries(gs, S, S2)
 end
 
 
-# Get the remaining number left that can be filled into given `square`.
-getRemainingNumbers(gs::GameState, square::Int) = gs.blocks[square] ∩ gs.rows[square] ∩ gs.cols[square]
+# Get the remaining number left that can be filled into indicated cell.
+getRemainingNumbers(gs::GameState, cell::Cell) = gs.blocks[cell] ∩ gs.rows[cell] ∩ gs.cols[cell]
 
 
 # Get cell number from row and column index.
 getCell(i::Int, j::Int) = 9(i - 1) + j
 
 
-# Set cell 'square' to be the given number.
-# E.g. if `square == 1` and `number == 2`,
-# then we will set entry of square (1, 1) with the value of 2.
-# Notice that we will also remove 2 as a choice for the remaining empty squares.
-function setCell(gs::GameState, square::Int, number::Number)
-    writeNumberToCell(gs, square, number)
-    removeNumberFromBlock(gs, square, number)
-    removeNumberFromRow(gs, square, number)
-    removeNumberFromCol(gs, square, number)
+# Set cell to be the given number.
+# E.g. if `cell == 1` and `number == 2`,
+# then we will set entry of cell (1, 1) with the value of 2.
+# Notice that we will also remove 2 from corresponding component so it will not be used for subsequent allocations.
+function setCell(gs::GameState, cell::Cell, number::Number)
+    writeNumberToCell(gs, cell, number)
+    removeNumberFromBlock(gs, cell, number)
+    removeNumberFromRow(gs, cell, number)
+    removeNumberFromCol(gs, cell, number)
 end
 
 # Clear cell does the opposite of set cell.
-# Clear cell `square` will remove its number from the corresponding entry,
-# while reinstating its possibility to be use by other empty squares.
-function clearCell(gs::GameState, square::Int)
-    returnNumberToBlock(gs, square)
-    returnNumberToRow(gs, square)
-    returnNumberToCol(gs, square)
-    eraseNumberFromCell(gs, square)
+# Clear cell will erase the number allocated to it,
+# while reinstating its possibility to be use by other empty cells.
+function clearCell(gs::GameState, cell::Cell)
+    reinstateNumberToBlock(gs, cell)
+    reinstateNumberToRow(gs, cell)
+    reinstateNumberToCol(gs, cell)
+    eraseNumberFromCell(gs, cell)
 end
 
 
 # Write number to cell.
-function writeNumberToCell(gs::GameState, square::Int, number::Number)
-    gs.cell[square] = number
+function writeNumberToCell(gs::GameState, cell::Cell, number::Number)
+    gs.cells[cell] = number
 end
 # Erase number from cell.
-function eraseNumberFromCell(gs::GameState, square::Int)
-    gs.cell[square] = BLANK
+function eraseNumberFromCell(gs::GameState, cell::Cell)
+    gs.cells[cell] = BLANK
 end
 
 
 # Remove the number from corresponding (block/row/column) because it has been allocated to a cell within them.
-removeNumberFromBlock(gs::GameState, square::Int, number::Number) = removeNumber!(gs.blocks[square], number)
-removeNumberFromRow(gs::GameState, square::Int, number::Number) = removeNumber!(gs.rows[square], number)
-removeNumberFromCol(gs::GameState, square::Int, number::Number) = removeNumber!(gs.cols[square], number)
+removeNumberFromBlock(gs::GameState, cell::Cell, number::Number) = removeNumber!(gs.blocks[cell], number)
+removeNumberFromRow(gs::GameState, cell::Cell, number::Number) = removeNumber!(gs.rows[cell], number)
+removeNumberFromCol(gs::GameState, cell::Cell, number::Number) = removeNumber!(gs.cols[cell], number)
 
 
-# Return the number to corresponding (block/row/column) because it is freed from a cell within them.
-returnNumberToBlock(gs::GameState, square::Int) = includeNumber!(gs.blocks[square], gs.cell[square])
-returnNumberToRow(gs::GameState, square::Int) = includeNumber!(gs.rows[square], gs.cell[square])
-returnNumberToCol(gs::GameState, square::Int) = includeNumber!(gs.cols[square], gs.cell[square])
+# Reinstate the number to corresponding (block/row/column) because it is freed from a cell within them.
+reinstateNumberToBlock(gs::GameState, cell::Cell) = includeNumber!(gs.blocks[cell], gs.cells[cell])
+reinstateNumberToRow(gs::GameState, cell::Cell) = includeNumber!(gs.rows[cell], gs.cells[cell])
+reinstateNumberToCol(gs::GameState, cell::Cell) = includeNumber!(gs.cols[cell], gs.cells[cell])
 
 
 function main()

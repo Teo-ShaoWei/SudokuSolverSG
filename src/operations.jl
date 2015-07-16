@@ -1,6 +1,6 @@
-Base.getindex(s::ComponentState, index::Index) = s.data[s.location[index]]
-function Base.setindex!(s::ComponentState, number::Number, index::Index)
-    s.data[s.location[index]] = number
+Base.getindex(s::ComponentState, cell::Cell) = s.data[s.location[cell]]
+function Base.setindex!(s::ComponentState, number::Number, cell::Cell)
+    s.data[s.location[cell]] = number
 end
 
 

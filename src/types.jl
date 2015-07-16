@@ -8,29 +8,29 @@ type LeftoverNumbers
     val_bits::Uint16
 end
 
-# Represents the index of a cell.
+# Represents a cell.
 # The index counts from 1, starting at the top left, moving to right, then row-by-row to the bottom, ending with 81.
-typealias Index Int
+typealias Cell Int
 
 
 # Represent the state of the blocks, rows, and columns respectively.
 type ComponentState
     data::Vector{LeftoverNumbers}
-    location::Vector{Index}
+    location::Vector{Cell}
 end
 
 
 # The state of the game currently.
 # This will evolve as the Sudoku puzzle is being solved.
 type GameState
-    cell::Vector{Number}
+    cells::Vector{Number}
 
     blocks::ComponentState
     rows::ComponentState
     cols::ComponentState
 
-    sequence::Vector{Index}
-    sequencePointer::Index
+    sequence::Vector{Cell}
+    sequencePointer::Cell
 
     currentCount::Int
     levelCount::Vector{Int}
@@ -40,36 +40,36 @@ end
 ### Constructors
 
 # Each leftover numbers in the component is initialize with the full set {1, 2,..., 9} inside.
-function ComponentState(location::Vector{Index})
+function ComponentState(location::Vector{Cell})
     data = [LeftoverNumbers(ONES) for i in 1:9]
     return ComponentState(data, location)
 end
 
 
 function GameState()
-    cell = Array(Number, 81)
+    cells = Array(Number, 81)
 
-    location_in_blocks = Array(Index, 81)
-    location_in_rows = Array(Index, 81)
-    location_in_cols = Array(Index, 81)
+    location_in_blocks = Array(Cell, 81)
+    location_in_rows = Array(Cell, 81)
+    location_in_cols = Array(Cell, 81)
 
-    sequence = Array(Index, 81)
-    sequencePointer = one(Index)
+    sequence = Array(Cell, 81)
+    sequencePointer = one(Cell)
 
     currentCount = zero(Int)
     levelCount = Array(Int, 82)
 
     for i in 1:9, j in 1:9
-        square = getCell(i, j)
+        index = getCell(i, j)
 
-        cell[square] = BLANK
+        cells[index] = BLANK
 
-        location_in_blocks[square] = 3 * (cld(i, 3) - 1) + cld(j, 3)
-        location_in_rows[square] = i
-        location_in_cols[square] = j
+        location_in_blocks[index] = 3 * (cld(i, 3) - 1) + cld(j, 3)
+        location_in_rows[index] = i
+        location_in_cols[index] = j
 
-        sequence[square] = square
-        levelCount[square] = zero(Int)
+        sequence[index] = index
+        levelCount[index] = zero(Int)
     end
 
     blocks = ComponentState(location_in_blocks)
@@ -77,7 +77,7 @@ function GameState()
     cols = ComponentState(location_in_cols)
 
 
-    return GameState(cell,
+    return GameState(cells,
 
                      blocks,
                      rows,
