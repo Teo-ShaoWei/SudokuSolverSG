@@ -58,8 +58,6 @@ type GameState
     sequence::SequenceState
 
     solutions::Vector{Matrix{Number}}
-
-    currentCount::Int
     levelCount::LevelCount
 end
 
@@ -68,6 +66,7 @@ end
 
 # Each cell is left blank initially.
 CellsState() = CellsState([BLANK for i in 1:9, j in 1:9])
+
 
 # Each leftover numbers in the component is initialize with the full set {1, 2,..., 9} inside.
 ComponentState(findComponentIndex::Function) = ComponentState([LeftoverNumbers(ONES) for i in 1:9], findComponentIndex)
@@ -86,6 +85,7 @@ end
 
 LevelCount() = LevelCount([zero(Int) for i in 1:81])
 
+
 function GameState()
     return GameState(CellsState(),
 
@@ -96,7 +96,5 @@ function GameState()
                      SequenceState(),
 
                      Array(Matrix{Number}, 0),
-
-                     zero(Int),
                      LevelCount())
 end

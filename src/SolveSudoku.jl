@@ -9,7 +9,7 @@ function solveSudoku(input::Matrix{Number})
     gs = GameState()
     numbersFilled = populateGame(gs, input)
     Place(gs, numbersFilled)
-    @printf "\n\nTotal COUNT = %d\n" gs.currentCount
+    @printf "\n\nTotal COUNT = %d\n" getTotalCount(gs.levelCount)
 
     return gs.solutions
 end
@@ -67,7 +67,7 @@ function PrintStats(gs::GameState)
         S += 1
     end
 
-    @printf "\n\nCOUNT = %d\n" gs.currentCount
+    @printf "\n\nCOUNT = %d\n" getTotalCount(gs.levelCount)
 end
 
 
@@ -105,7 +105,6 @@ function Place(gs::GameState, numbersFilled::Int)
 
     currentIndex = numbersFilled + 1
     gs.levelCount[currentIndex] += 1
-    gs.currentCount += 1
 
     S2 = NextSeq(gs, currentIndex)
     SwapSeqEntries(gs, currentIndex, S2)

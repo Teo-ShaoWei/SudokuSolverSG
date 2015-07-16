@@ -32,7 +32,7 @@ Base.getindex(lc::LevelCount, i::Int) = lc.data[i]
 Base.setindex!(lc::LevelCount, value::Int, i::Int) = (lc.data[i] = value)
 
 writeSolution(solutions::Vector{Matrix{Number}}, s::CellsState) = Base.push!(solutions, deepcopy(s.data))
-
+getTotalCount(lc::LevelCount) = sum(lc.data)
 
 # Set cell to be the given number.
 # E.g. if `cell == 1` and `number == 2`,
