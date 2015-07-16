@@ -14,6 +14,7 @@ getBlock = getBlock_constructor()
 getRow(cell::Cell) = cell.row
 getCol(cell::Cell) = cell.col
 
+
 Base.getindex(s::GameState, cell::Cell) = s.data[cell.row, cell.col]
 Base.setindex!(s::GameState, number::Number, cell::Cell) = (s.data[cell.row, cell.col] = number)
 
@@ -22,11 +23,15 @@ Base.setindex!(s::CellsState, number::Number, cell::Cell) = (s.data[cell.row, ce
 
 Base.getindex(s::ComponentState, cell::Cell) = s.data[s.findComponentIndex(cell)]
 
+Base.length(s::SequenceState) = Base.length(s.data)
 Base.getindex(s::SequenceState, i::Int) = s.data[i]
+Base.getindex(s::SequenceState, r::UnitRange) = [s.data[i] for i in r]
 Base.setindex!(s::SequenceState, cell::Cell, i::Int) = (s.data[i] = cell)
 
 Base.getindex(lc::LevelCount, i::Int) = lc.data[i]
 Base.setindex!(lc::LevelCount, value::Int, i::Int) = (lc.data[i] = value)
+
+writeSolution(solutions::Vector{Matrix{Number}}, s::CellsState) = Base.push!(solutions, deepcopy(s.data))
 
 
 # Set cell to be the given number.

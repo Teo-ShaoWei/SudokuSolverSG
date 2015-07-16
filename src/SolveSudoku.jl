@@ -5,46 +5,29 @@ include("types.jl")
 include("operations.jl")
 
 
-function main()
+function solveSudoku(input::Matrix{Number})
     gs = GameState()
-    ConsoleInput(gs)
-    Place(gs, gs.sequencePointer)
+    numbersFilled = populateGame(gs, input)
+    Place(gs, numbersFilled)
     @printf "\n\nTotal COUNT = %d\n" gs.currentCount
 
-    return 0
+    return gs.solutions
 end
 
 
-function ConsoleInput(gs::GameState)
-    for i in 1:9
-        @printf "ROW[%d] : " i
-        InputString = readline(STDIN)
+function populateGame(gs::GameState, input::Matrix{Number})
+    numbersFilled = 0
 
-        for j in 1:9
-            ch = InputString[j]
-            if ch ≥ '1' && ch ≤ '9'
-                InitEntry(gs, i, j, ch - '0')
-            end
+    for i in 1:9, j in 1:9
+        if input[i, j] != 0
+            cell = Cell(i, j)
+            setCell(gs, cell, input[i, j])
+            numbersFilled += 1
+            SwapSeqEntries(gs, numbersFilled, findfirst(gs.sequence, cell))
         end
     end
 
-    PrintArray(gs)
-end
-
-function InitEntry(gs::GameState, i::Int, j::Int, number::Number)
-    cell = Cell(i, j)
-
-    # Add suitable checks for data consistency.
-
-    setCell(gs, cell, number)
-
-    SeqPtr2 = gs.sequencePointer
-    while SeqPtr2 ≤ 81 && gs.sequence[SeqPtr2] != cell
-        SeqPtr2 += 1
-    end
-
-    SwapSeqEntries(gs, gs.sequencePointer, SeqPtr2)
-    gs.sequencePointer += 1
+    return numbersFilled
 end
 
 
@@ -89,6 +72,7 @@ end
 
 
 function Succeed(gs::GameState)
+    writeSolution(gs.solutions, gs.cells)
     PrintArray(gs)
     PrintStats(gs)
 end
@@ -113,28 +97,29 @@ function NextSeq(gs::GameState, S::Int)
 end
 
 
-function Place(gs::GameState, S::Int)
-    gs.levelCount[S] += 1
-    gs.currentCount += 1
-
-    if S > 81
+function Place(gs::GameState, numbersFilled::Int)
+    if numbersFilled ≥ 81
         Succeed(gs)
         return
     end
 
-    S2 = NextSeq(gs, S)
-    SwapSeqEntries(gs, S, S2)
+    currentIndex = numbersFilled + 1
+    gs.levelCount[currentIndex] += 1
+    gs.currentCount += 1
 
-    cell = gs.sequence[S]
+    S2 = NextSeq(gs, currentIndex)
+    SwapSeqEntries(gs, currentIndex, S2)
+
+    cell = gs.sequence[currentIndex]
 
     Possibles = getRemainingNumbers(gs, cell)
     for number in Possibles
         setCell(gs, cell, number)
-        Place(gs, S + 1)
+        Place(gs, numbersFilled + 1)
         clearCell(gs, cell)
     end
 
-    SwapSeqEntries(gs, S, S2)
+    SwapSeqEntries(gs, currentIndex, S2)
 end
 
 

@@ -32,11 +32,14 @@ immutable ComponentState
 end
 
 
+# Represents the solution sequence.
+# By the end of the program, this sequence shows the order of filling in of number for the last found correct solution.
 immutable SequenceState
     data::Vector{Cell}
 end
 
 
+# Represents the number of times we change the values at that point before we reached a solution.
 immutable LevelCount
     data::Vector{Int}
 end
@@ -53,7 +56,8 @@ type GameState
     cols::ComponentState
 
     sequence::SequenceState
-    sequencePointer::Int
+
+    solutions::Vector{Matrix{Number}}
 
     currentCount::Int
     levelCount::LevelCount
@@ -80,12 +84,9 @@ function SequenceState()
 end
 
 
-LevelCount() = LevelCount([zero(Int) for i in 1:82])
+LevelCount() = LevelCount([zero(Int) for i in 1:81])
 
 function GameState()
-    sequencePointer = one(Int)
-    currentCount = zero(Int)
-
     return GameState(CellsState(),
 
                      ComponentState(getBlock),
@@ -93,8 +94,9 @@ function GameState()
                      ComponentState(getCol),
 
                      SequenceState(),
-                     sequencePointer,
 
-                     currentCount,
+                     Array(Matrix{Number}, 0),
+
+                     zero(Int),
                      LevelCount())
 end
