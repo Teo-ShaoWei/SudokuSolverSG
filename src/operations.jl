@@ -1,3 +1,9 @@
+Base.getindex(s::ComponentState, index::Index) = s.data[s.location[index]]
+function Base.setindex!(s::ComponentState, number::Number, index::Index)
+    s.data[s.location[index]] = number
+end
+
+
 (∩)(set₁::LeftoverNumbers, set₂::LeftoverNumbers) = LeftoverNumbers(set₁.val_bits & set₂.val_bits)
 function removeNumber!(set::LeftoverNumbers, i::Int)
     set.val_bits &= ~(1 << i)

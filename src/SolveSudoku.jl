@@ -141,7 +141,7 @@ end
 
 
 # Get the remaining number left that can be filled into given `square`.
-getRemainingNumbers(gs::GameState, square::Int) = gs.leftoverNumbers_block[gs.block_of[square]] ∩ gs.leftoverNumbers_row[gs.row_of[square]] ∩ gs.leftoverNumbers_col[gs.col_of[square]]
+getRemainingNumbers(gs::GameState, square::Int) = gs.blocks[square] ∩ gs.rows[square] ∩ gs.cols[square]
 
 
 # Get cell number from row and column index.
@@ -181,15 +181,15 @@ end
 
 
 # Remove the number from corresponding (block/row/column) because it has been allocated to a cell within them.
-removeNumberFromBlock(gs::GameState, square::Int, number::Number) = removeNumber!(gs.leftoverNumbers_block[gs.block_of[square]], number)
-removeNumberFromRow(gs::GameState, square::Int, number::Number) = removeNumber!(gs.leftoverNumbers_row[gs.row_of[square]], number)
-removeNumberFromCol(gs::GameState, square::Int, number::Number) = removeNumber!(gs.leftoverNumbers_col[gs.col_of[square]], number)
+removeNumberFromBlock(gs::GameState, square::Int, number::Number) = removeNumber!(gs.blocks[square], number)
+removeNumberFromRow(gs::GameState, square::Int, number::Number) = removeNumber!(gs.rows[square], number)
+removeNumberFromCol(gs::GameState, square::Int, number::Number) = removeNumber!(gs.cols[square], number)
 
 
 # Return the number to corresponding (block/row/column) because it is freed from a cell within them.
-returnNumberToBlock(gs::GameState, square::Int) = includeNumber!(gs.leftoverNumbers_block[gs.block_of[square]], gs.cell[square])
-returnNumberToRow(gs::GameState, square::Int) = includeNumber!(gs.leftoverNumbers_row[gs.row_of[square]], gs.cell[square])
-returnNumberToCol(gs::GameState, square::Int) = includeNumber!(gs.leftoverNumbers_col[gs.col_of[square]], gs.cell[square])
+returnNumberToBlock(gs::GameState, square::Int) = includeNumber!(gs.blocks[square], gs.cell[square])
+returnNumberToRow(gs::GameState, square::Int) = includeNumber!(gs.rows[square], gs.cell[square])
+returnNumberToCol(gs::GameState, square::Int) = includeNumber!(gs.cols[square], gs.cell[square])
 
 
 function main()
