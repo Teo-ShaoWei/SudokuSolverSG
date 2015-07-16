@@ -10,7 +10,7 @@ function SwapSeqEntries(gs::GameState, S1::Int, S2::Int)
 end
 
 function InitEntry(gs::GameState, i::Int, j::Int, number::Number)
-    cell = getCell(i, j)
+    cell = Cell(i, j)
 
     # Add suitable checks for data consistency.
 
@@ -27,19 +27,12 @@ end
 
 
 function PrintArray(gs::GameState)
-    cell = 1
-
     for i in 1:9
         (i % 3 == 1) && println()
         for j in 1:9
             (j % 3 == 1) && print(' ')
-            number = gs.cells[cell]
-            cell += 1
-            if number ∈ [1:9]
-                ch = '0' + number
-            else
-                ch = '-'
-            end
+            number = gs.cells[Cell(i, j)]
+            ch = number ∈ [1:9] ? '0' + number : '-'
             print(ch)
         end
         println()
@@ -75,8 +68,8 @@ function PrintStats(gs::GameState)
     i = 1
 
     while S ≤ 81
-        Seq = gs.sequence[S]
-        @printf "(%d, %d):%4d " cld(Seq, 9) rem1(Seq, 9) gs.levelCount[S]
+        cell = gs.sequence[S]
+        @printf "(%d, %d):%4d " cell.row cell.col gs.levelCount[S]
         if (i > 5)
             @printf "\n"
             i = 1
@@ -115,7 +108,7 @@ function NextSeq(gs::GameState, S::Int)
 end
 
 
-function Place(gs::GameState, S::Cell)
+function Place(gs::GameState, S::Int)
     gs.levelCount[S] += 1
     gs.currentCount += 1
 
@@ -142,10 +135,6 @@ end
 
 # Get the remaining number left that can be filled into indicated cell.
 getRemainingNumbers(gs::GameState, cell::Cell) = gs.blocks[cell] ∩ gs.rows[cell] ∩ gs.cols[cell]
-
-
-# Get cell number from row and column index.
-getCell(i::Int, j::Int) = 9(i - 1) + j
 
 
 # Set cell to be the given number.
@@ -201,8 +190,5 @@ function main()
     return 0
 end
 
-
-# Function not in Julia v0.3, but will be added in Julia v0.4.
-cld(x::Int, y::Int) = fld((x - 1), y) + 1
 
 end #SudokuSolver
