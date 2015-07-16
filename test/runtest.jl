@@ -1,42 +1,35 @@
 module TestCapsule
 using FactCheck
-using SudokuSolver: main
+using SudokuSolver: solveSudoku
 
-function generateTestCase()
-    row = Array(String, 9)
+generateTestCase() = [0 0 0  0 0 0  0 0 0;
+                      0 0 0  0 0 3  0 8 5;
+                      0 0 1  0 2 0  0 0 0;
 
-    row[1] = "---------\n"
-    row[2] = "-----3-85\n"
-    row[3] = "--1-2----\n"
-    row[4] = "---5-7---\n"
-    row[5] = "--4---1--\n"
-    row[6] = "-9-------\n"
-    row[7] = "5------73\n"
-    row[8] = "--2-1----\n"
-    row[9] = "----4---9\n"
+                      0 0 0  5 0 7  0 0 0;
+                      0 0 4  0 0 0  1 0 0;
+                      0 9 0  0 0 0  0 0 0;
 
-    return string(row...)
-end
+                      5 0 0  0 0 0  0 7 3;
+                      0 0 2  0 1 0  0 0 0;
+                      0 0 0  0 4 0  0 0 9]
 
-expectedOutput() = "ROW[1] : ROW[2] : ROW[3] : ROW[4] : ROW[5] : ROW[6] : ROW[7] : ROW[8] : ROW[9] : \n --- --- ---\n --- --3 -85\n --1 -2- ---\n\n --- 5-7 ---\n --4 --- 1--\n -9- --- ---\n\n 5-- --- -73\n --2 -1- ---\n --- -4- --9\n\n 987 654 321\n 246 173 985\n 351 928 746\n\n 128 537 694\n 634 892 157\n 795 461 832\n\n 519 286 473\n 472 319 568\n 863 745 219\n\nLevel Counts:\n\n(3, 9):   1 (8, 9):   2 (4, 9):   4 (5, 9):   8 (6, 9):  15 (1, 9):  23 \n(3, 8):  33 (8, 8):  46 (4, 8):  79 (1, 8): 119 (5, 8): 182 (6, 8): 250 \n(9, 8): 287 (4, 7): 347 (6, 7): 478 (6, 5): 588 (6, 1): 732 (6, 3): 828 \n(6, 4): 862 (6, 6): 895 (4, 5): 795 (4, 3): 761 (5, 5): 843 (7, 5): 829 \n(2, 5): 616 (1, 5): 594 (2, 7): 543 (2, 3): 565 (7, 3): 551 (2, 4): 577 \n(3, 6): 565 (3, 4): 590 (1, 4): 572 (1, 6): 595 (7, 4): 612 (5, 4): 576 \n(7, 6): 476 (7, 7): 389 (7, 2): 262 (4, 2): 184 (2, 2): 140 (2, 1):  95 \n(5, 6):  56 (8, 7):  34 (8, 6):  18 (3, 1):  13 (8, 1):  10 (3, 7):   7 \n(3, 2):   8 (1, 7):  10 (5, 1):  10 (5, 2):   6 (8, 2):   4 (8, 4):   2 \n(9, 1):   1 (1, 1):   1 (9, 2):   1 (9, 3):   1 (9, 4):   1 (4, 1):   1 \n(9, 6):   1 (9, 7):   1 (1, 3):   1 (1, 2):   1 \n\nCOUNT = 17698\n\n\nTotal COUNT = 24395\n"
+expectedSolution() = [9 8 7  6 5 4  3 2 1;
+                      2 4 6  1 7 3  9 8 5;
+                      3 5 1  9 2 8  7 4 6;
+
+                      1 2 8  5 3 7  6 9 4;
+                      6 3 4  8 9 2  1 5 7;
+                      7 9 5  4 6 1  8 3 2;
+
+                      5 1 9  2 8 6  4 7 3;
+                      4 7 2  3 1 9  5 6 8;
+                      8 6 3  7 4 5  2 1 9]
 
 @time facts("System test.") do
-    originalSTDIN = STDIN
-    originalSTDOUT = STDOUT
-    # Redirecting of STDIN and STDOUT are volatile operations, and a try-finally clause make sure they always revert back to normal.
-    try
-        (_, stdin) = redirect_stdin()
-        (stdout, _) = redirect_stdout()
+    solutions = solveSudoku(generateTestCase())
 
-        write(stdin, generateTestCase())
-
-        main()
-
-        @fact readavailable(stdout) => expectedOutput()
-    finally
-        redirect_stdin(originalSTDIN)
-        redirect_stdout(originalSTDOUT)
-    end
+    @fact solutions[1] => expectedSolution()
 end
 
 end #TestCapsule
