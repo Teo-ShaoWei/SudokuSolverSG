@@ -39,7 +39,7 @@ immutable SequenceState
 end
 
 
-# Represents the number of times we change the values at that point before we reached a solution.
+# Represents the number of times we change the values with that amount of entries filled.
 immutable LevelCount
     data::Vector{Int}
 end
@@ -72,6 +72,7 @@ CellsState() = CellsState([BLANK for i in 1:9, j in 1:9])
 ComponentState(findComponentIndex::Function) = ComponentState([LeftoverNumbers(ONES) for i in 1:9], findComponentIndex)
 
 
+# We allocate cells to the sequence in the order (1, 1), ..., (1, 9), (2, 1), ..., ..., (9, 9).
 function SequenceState()
     data = Array(Cell, 81)
     index = 1
@@ -86,6 +87,7 @@ end
 LevelCount() = LevelCount([zero(Int) for i in 1:81])
 
 
+# Constructing `GameState` is as simple as calling constructor for all its components.
 function GameState()
     return GameState(CellsState(),
 
