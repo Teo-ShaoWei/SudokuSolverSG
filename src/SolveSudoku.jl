@@ -5,8 +5,30 @@ include("types.jl")
 include("operations.jl")
 
 
-function SwapSeqEntries(gs::GameState, S1::Int, S2::Int)
-    (gs.sequence[S1], gs.sequence[S2]) = (gs.sequence[S2], gs.sequence[S1])
+function main()
+    gs = GameState()
+    ConsoleInput(gs)
+    Place(gs, gs.sequencePointer)
+    @printf "\n\nTotal COUNT = %d\n" gs.currentCount
+
+    return 0
+end
+
+
+function ConsoleInput(gs::GameState)
+    for i in 1:9
+        @printf "ROW[%d] : " i
+        InputString = readline(STDIN)
+
+        for j in 1:9
+            ch = InputString[j]
+            if ch ≥ '1' && ch ≤ '9'
+                InitEntry(gs, i, j, ch - '0')
+            end
+        end
+    end
+
+    PrintArray(gs)
 end
 
 function InitEntry(gs::GameState, i::Int, j::Int, number::Number)
@@ -37,23 +59,6 @@ function PrintArray(gs::GameState)
         end
         println()
     end
-end
-
-
-function ConsoleInput(gs::GameState)
-    for i in 1:9
-        @printf "ROW[%d] : " i
-        InputString = readline(STDIN)
-
-        for j in 1:9
-            ch = InputString[j]
-            if ch ≥ '1' && ch ≤ '9'
-                InitEntry(gs, i, j, ch - '0')
-            end
-        end
-    end
-
-    PrintArray(gs)
 end
 
 
@@ -130,64 +135,6 @@ function Place(gs::GameState, S::Int)
     end
 
     SwapSeqEntries(gs, S, S2)
-end
-
-
-# Get the remaining number left that can be filled into indicated cell.
-getRemainingNumbers(gs::GameState, cell::Cell) = gs.blocks[cell] ∩ gs.rows[cell] ∩ gs.cols[cell]
-
-
-# Set cell to be the given number.
-# E.g. if `cell == 1` and `number == 2`,
-# then we will set entry of cell (1, 1) with the value of 2.
-# Notice that we will also remove 2 from corresponding component so it will not be used for subsequent allocations.
-function setCell(gs::GameState, cell::Cell, number::Number)
-    writeNumberToCell(gs, cell, number)
-    removeNumberFromBlock(gs, cell, number)
-    removeNumberFromRow(gs, cell, number)
-    removeNumberFromCol(gs, cell, number)
-end
-
-# Clear cell does the opposite of set cell.
-# Clear cell will erase the number allocated to it,
-# while reinstating its possibility to be use by other empty cells.
-function clearCell(gs::GameState, cell::Cell)
-    reinstateNumberToBlock(gs, cell)
-    reinstateNumberToRow(gs, cell)
-    reinstateNumberToCol(gs, cell)
-    eraseNumberFromCell(gs, cell)
-end
-
-
-# Write number to cell.
-function writeNumberToCell(gs::GameState, cell::Cell, number::Number)
-    gs.cells[cell] = number
-end
-# Erase number from cell.
-function eraseNumberFromCell(gs::GameState, cell::Cell)
-    gs.cells[cell] = BLANK
-end
-
-
-# Remove the number from corresponding (block/row/column) because it has been allocated to a cell within them.
-removeNumberFromBlock(gs::GameState, cell::Cell, number::Number) = removeNumber!(gs.blocks[cell], number)
-removeNumberFromRow(gs::GameState, cell::Cell, number::Number) = removeNumber!(gs.rows[cell], number)
-removeNumberFromCol(gs::GameState, cell::Cell, number::Number) = removeNumber!(gs.cols[cell], number)
-
-
-# Reinstate the number to corresponding (block/row/column) because it is freed from a cell within them.
-reinstateNumberToBlock(gs::GameState, cell::Cell) = includeNumber!(gs.blocks[cell], gs.cells[cell])
-reinstateNumberToRow(gs::GameState, cell::Cell) = includeNumber!(gs.rows[cell], gs.cells[cell])
-reinstateNumberToCol(gs::GameState, cell::Cell) = includeNumber!(gs.cols[cell], gs.cells[cell])
-
-
-function main()
-    gs = GameState()
-    ConsoleInput(gs)
-    Place(gs, gs.sequencePointer)
-    @printf "\n\nTotal COUNT = %d\n" gs.currentCount
-
-    return 0
 end
 
 
