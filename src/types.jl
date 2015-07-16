@@ -1,82 +1,102 @@
+### Types
+
 # Represents the number to fill into a cell, i.e. 1 to 9.
-typealias Number Uint
+typealias Number Int
 
-# Represents a subset of {1, 2, ..., 9},
-# which in turn represents the leftover number that can be use to fill the corresponding cells.
-typealias LeftoverNumbers Uint
 
-# Represents the index of a cell.
-# The index counts from 1, starting at the top left, moving to right, then row-by-row to the bottom, ending with 81.
-typealias Index Int
+# A subset of {1, 2, ..., 9}, which represents the leftover number that can be use to fill the corresponding cells.
+type LeftoverNumbers
+    val_bits::Uint16
+end
+
+
+# Represents a cell.
+# In natural order, (1, 1) is the top left, (9, 1) the bottom left, and (9, 9) the bottom right.
+immutable Cell
+    row::Int
+    col::Int
+end
+
+
+# Represent the state of all the cells
+immutable CellsState
+    data::Matrix{Number}
+end
+
+
+# Represent the state of components like the blocks, rows, and columns.
+# The function `findComponentIndex` is used to find the index in the component of the given cell.
+immutable ComponentState
+    data::Vector{LeftoverNumbers}
+    findComponentIndex::Function
+end
+
+
+# Represents the solution sequence.
+# By the end of the program, this sequence shows the order of filling in of number for the last found correct solution.
+immutable SequenceState
+    data::Vector{Cell}
+end
+
+
+# Represents the number of times we change the values with that amount of entries filled.
+immutable LevelCount
+    data::Vector{Int}
+end
+
+
 
 # The state of the game currently.
 # This will evolve as the Sudoku puzzle is being solved.
 type GameState
-    cell::Vector{Number}
+    cells::CellsState
 
-    leftoverNumbers_block::Vector{LeftoverNumbers}
-    leftoverNumbers_row::Vector{LeftoverNumbers}
-    leftoverNumbers_col::Vector{LeftoverNumbers}
+    blocks::ComponentState
+    rows::ComponentState
+    cols::ComponentState
 
-    block_of::Vector{Index}
-    row_of::Vector{Index}
-    col_of::Vector{Index}
+    sequence::SequenceState
 
-    sequence::Vector{Index}
-    sequencePointer::Index
-
-    currentCount::Int
-    levelCount::Vector{Int}
+    solutions::Vector{Matrix{Number}}
+    levelCount::LevelCount
 end
 
-function GameState()
-    cell = Array(Number, 81)
 
-    leftoverNumbers_block = Array(LeftoverNumbers, 9)
-    leftoverNumbers_row = Array(LeftoverNumbers, 9)
-    leftoverNumbers_col = Array(LeftoverNumbers, 9)
+### Constructors
 
-    block_of = Array(Index, 81)
-    row_of = Array(Index, 81)
-    col_of = Array(Index, 81)
+# Each cell is left blank initially.
+CellsState() = CellsState([BLANK for i in 1:9, j in 1:9])
 
-    sequence = Array(Index, 81)
-    sequencePointer = one(Index)
 
-    currentCount = zero(Int)
-    levelCount = Array(Int, 82)
+# Each leftover numbers in the component is initialize with the full set {1, 2,..., 9} inside.
+ComponentState(findComponentIndex::Function) = ComponentState([LeftoverNumbers(ONES) for i in 1:9], findComponentIndex)
 
+
+# We allocate cells to the sequence in the order (1, 1), ..., (1, 9), (2, 1), ..., ..., (9, 9).
+function SequenceState()
+    data = Array(Cell, 81)
+    index = 1
     for i in 1:9, j in 1:9
-        square = getCell(i, j)
-
-        cell[square] = BLANK
-
-        block_of[square] = 3 * (cld(i, 3) - 1) + cld(j, 3)
-        row_of[square] = i
-        col_of[square] = j
-
-        sequence[square] = square
-        levelCount[square] = zero(Int)
+        data[index] = Cell(i, j)
+        index += 1
     end
-
-    for i in 1:9
-        leftoverNumbers_block[i] = leftoverNumbers_row[i] = leftoverNumbers_col[i] = ONES
-    end
+    SequenceState(data)
+end
 
 
-    return GameState(cell,
+LevelCount() = LevelCount([zero(Int) for i in 1:81])
 
-                     leftoverNumbers_block,
-                     leftoverNumbers_row,
-                     leftoverNumbers_col,
 
-                     block_of,
-                     row_of,
-                     col_of,
+# Constructing `GameState` is as simple as calling constructor for all its components.
+function GameState()
+    return GameState(CellsState(),
 
-                     sequence,
-                     sequencePointer,
+                     ComponentState(getBlock),
+                     ComponentState(getRow),
+                     ComponentState(getCol),
 
-                     currentCount,
-                     levelCount)
+                     SequenceState(),
+
+                     Array(Matrix{Number}, 0),
+                     LevelCount())
 end
