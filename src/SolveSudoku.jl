@@ -2,19 +2,19 @@ module SudokuSolver
 
 include("constants.jl")
 include("types.jl")
+include("operations.jl")
 
 
 function SwapSeqEntries(gs::GameState, S1::Int, S2::Int)
     (gs.sequence[S1], gs.sequence[S2]) = (gs.sequence[S2], gs.sequence[S1])
 end
 
-function InitEntry(gs::GameState, i::Int, j::Int, val::Int)
+function InitEntry(gs::GameState, i::Int, j::Int, number::Number)
     Square = getCell(i, j)
-    valbit::Number = 1 << val
 
     # Add suitable checks for data consistency.
 
-    setCell(gs, Square, valbit)
+    setCell(gs, Square, number)
 
     SeqPtr2 = gs.sequencePointer
     while SeqPtr2 ≤ 81 && gs.sequence[SeqPtr2] != Square
@@ -33,17 +33,12 @@ function PrintArray(gs::GameState)
         (i % 3 == 1) && println()
         for j in 1:9
             (j % 3 == 1) && print(' ')
-            valbit = gs.cell[Square]
+            number = gs.cell[Square]
             Square += 1
-            if valbit == 0
-                ch = '-'
+            if number ∈ [1:9]
+                ch = '0' + number
             else
-                for val in 1:9
-                    if valbit == (1 << val)
-                        ch = '0' + val
-                        break
-                    end
-                end
+                ch = '-'
             end
             print(ch)
         end
@@ -108,11 +103,7 @@ function NextSeq(gs::GameState, S::Int)
     for T in S:81
         Square = gs.sequence[T]
         Possibles = getRemainingNumbers(gs, Square)
-        BitCount = 0
-        while Possibles != 0
-            Possibles &= ~(Possibles & -Possibles)
-            BitCount += 1
-        end
+        BitCount = getSize(Possibles)
 
         if BitCount < MinBitCount
             MinBitCount = BitCount
@@ -139,10 +130,8 @@ function Place(gs::GameState, S::Index)
     Square = gs.sequence[S]
 
     Possibles = getRemainingNumbers(gs, Square)
-    while Possibles != 0
-        valbit = Possibles & (-Possibles) #Lowest 1 bit in Possibles.
-        Possibles &= ~valbit
-        setCell(gs, Square, valbit)
+    for number in Possibles
+        setCell(gs, Square, number)
         Place(gs, S + 1)
         clearCell(gs, Square)
     end
@@ -152,26 +141,26 @@ end
 
 
 # Get the remaining number left that can be filled into given `square`.
-getRemainingNumbers(gs::GameState, square::Int) = gs.leftoverNumbers_block[gs.block_of[square]] & gs.leftoverNumbers_row[gs.row_of[square]] & gs.leftoverNumbers_col[gs.col_of[square]]
+getRemainingNumbers(gs::GameState, square::Int) = gs.leftoverNumbers_block[gs.block_of[square]] ∩ gs.leftoverNumbers_row[gs.row_of[square]] ∩ gs.leftoverNumbers_col[gs.col_of[square]]
 
 
 # Get cell number from row and column index.
 getCell(i::Int, j::Int) = 9(i - 1) + j
 
 
-# Set cell 'square' to be the possible value represented by `value`.
-# E.g. if `square == 1` and `value == 0x100` (representing 2 for 2 trailing zeroes),
+# Set cell 'square' to be the given number.
+# E.g. if `square == 1` and `number == 2`,
 # then we will set entry of square (1, 1) with the value of 2.
 # Notice that we will also remove 2 as a choice for the remaining empty squares.
-function setCell(gs::GameState, square::Int, value::LeftoverNumbers)
-    writeNumberToCell(gs, square, value)
-    removeNumberFromBlock(gs, square, value)
-    removeNumberFromRow(gs, square, value)
-    removeNumberFromCol(gs, square, value)
+function setCell(gs::GameState, square::Int, number::Number)
+    writeNumberToCell(gs, square, number)
+    removeNumberFromBlock(gs, square, number)
+    removeNumberFromRow(gs, square, number)
+    removeNumberFromCol(gs, square, number)
 end
 
 # Clear cell does the opposite of set cell.
-# Clear cell `square` will remove its value from the corresponding entry,
+# Clear cell `square` will remove its number from the corresponding entry,
 # while reinstating its possibility to be use by other empty squares.
 function clearCell(gs::GameState, square::Int)
     returnNumberToBlock(gs, square)
@@ -182,8 +171,8 @@ end
 
 
 # Write number to cell.
-function writeNumberToCell(gs::GameState, square::Int, value::LeftoverNumbers)
-    gs.cell[square] = value
+function writeNumberToCell(gs::GameState, square::Int, number::Number)
+    gs.cell[square] = number
 end
 # Erase number from cell.
 function eraseNumberFromCell(gs::GameState, square::Int)
@@ -192,27 +181,15 @@ end
 
 
 # Remove the number from corresponding (block/row/column) because it has been allocated to a cell within them.
-function removeNumberFromBlock(gs::GameState, square::Int, value::LeftoverNumbers)
-    gs.leftoverNumbers_block[gs.block_of[square]] &= ~value
-end
-function removeNumberFromRow(gs::GameState, square::Int, value::LeftoverNumbers)
-    gs.leftoverNumbers_row[gs.row_of[square]] &= ~value
-end
-function removeNumberFromCol(gs::GameState, square::Int, value::LeftoverNumbers)
-    gs.leftoverNumbers_col[gs.col_of[square]] &= ~value
-end
+removeNumberFromBlock(gs::GameState, square::Int, number::Number) = removeNumber!(gs.leftoverNumbers_block[gs.block_of[square]], number)
+removeNumberFromRow(gs::GameState, square::Int, number::Number) = removeNumber!(gs.leftoverNumbers_row[gs.row_of[square]], number)
+removeNumberFromCol(gs::GameState, square::Int, number::Number) = removeNumber!(gs.leftoverNumbers_col[gs.col_of[square]], number)
 
 
 # Return the number to corresponding (block/row/column) because it is freed from a cell within them.
-function returnNumberToBlock(gs::GameState, square::Int)
-    gs.leftoverNumbers_block[gs.block_of[square]] |= gs.cell[square]
-end
-function returnNumberToRow(gs::GameState, square::Int)
-    gs.leftoverNumbers_row[gs.row_of[square]] |= gs.cell[square]
-end
-function returnNumberToCol(gs::GameState, square::Int)
-    gs.leftoverNumbers_col[gs.col_of[square]] |= gs.cell[square]
-end
+returnNumberToBlock(gs::GameState, square::Int) = includeNumber!(gs.leftoverNumbers_block[gs.block_of[square]], gs.cell[square])
+returnNumberToRow(gs::GameState, square::Int) = includeNumber!(gs.leftoverNumbers_row[gs.row_of[square]], gs.cell[square])
+returnNumberToCol(gs::GameState, square::Int) = includeNumber!(gs.leftoverNumbers_col[gs.col_of[square]], gs.cell[square])
 
 
 function main()

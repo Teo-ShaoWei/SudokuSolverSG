@@ -1,9 +1,12 @@
-# Represents the number to fill into a cell, i.e. 1 to 9.
-typealias Number Uint
+### Types
 
-# Represents a subset of {1, 2, ..., 9},
-# which in turn represents the leftover number that can be use to fill the corresponding cells.
-typealias LeftoverNumbers Uint
+# Represents the number to fill into a cell, i.e. 1 to 9.
+typealias Number Int
+
+# A subset of {1, 2, ..., 9}, which represents the leftover number that can be use to fill the corresponding cells.
+type LeftoverNumbers
+    val_bits::Uint16
+end
 
 # Represents the index of a cell.
 # The index counts from 1, starting at the top left, moving to right, then row-by-row to the bottom, ending with 81.
@@ -28,6 +31,12 @@ type GameState
     currentCount::Int
     levelCount::Vector{Int}
 end
+
+
+### Constructors
+
+# Each leftover numbers set initialize with the full set {1, 2,..., 9} inside.
+LeftoverNumbers() = LeftoverNumbers(ONES)
 
 function GameState()
     cell = Array(Number, 81)
@@ -60,7 +69,9 @@ function GameState()
     end
 
     for i in 1:9
-        leftoverNumbers_block[i] = leftoverNumbers_row[i] = leftoverNumbers_col[i] = ONES
+        leftoverNumbers_block[i] = LeftoverNumbers()
+        leftoverNumbers_row[i] = LeftoverNumbers()
+        leftoverNumbers_col[i] = LeftoverNumbers()
     end
 
 
