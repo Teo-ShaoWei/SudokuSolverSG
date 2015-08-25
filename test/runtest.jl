@@ -26,8 +26,8 @@ expectedSolution() = [9 8 7  6 5 4  3 2 1;
                       4 7 2  3 1 9  5 6 8;
                       8 6 3  7 4 5  2 1 9]
 
-@time facts("System test.") do
-    solutions = solveSudoku(generateTestCase())
+facts("System test.") do
+    @time solutions = solveSudoku(generateTestCase())
 
     @fact solutions[1] => expectedSolution()
 end

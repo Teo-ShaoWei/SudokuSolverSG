@@ -5,7 +5,7 @@ typealias Number Int
 
 
 # A subset of {1, 2, ..., 9}, which represents the leftover number that can be use to fill the corresponding cells.
-type LeftoverNumbers
+immutable LeftoverNumbers
     val_bits::Uint16
 end
 

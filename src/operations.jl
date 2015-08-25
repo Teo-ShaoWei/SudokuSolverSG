@@ -22,6 +22,7 @@ Base.getindex(s::CellsState, cell::Cell) = s.data[cell.row, cell.col]
 Base.setindex!(s::CellsState, number::Number, cell::Cell) = (s.data[cell.row, cell.col] = number)
 
 Base.getindex(s::ComponentState, cell::Cell) = s.data[s.findComponentIndex(cell)]
+Base.setindex!(s::ComponentState, set::LeftoverNumbers, cell::Cell) = (s.data[s.findComponentIndex(cell)] = set)
 
 Base.length(s::SequenceState) = Base.length(s.data)
 Base.getindex(s::SequenceState, i::Int) = s.data[i]
@@ -67,27 +68,38 @@ end
 
 
 # Remove the number from corresponding (block/row/column) because it has been allocated to a cell within them.
-removeNumberFromBlock!(gs::GameState, cell::Cell, number::Number) = removeNumber!(gs.blocks[cell], number)
-removeNumberFromRow!(gs::GameState, cell::Cell, number::Number) = removeNumber!(gs.rows[cell], number)
-removeNumberFromCol!(gs::GameState, cell::Cell, number::Number) = removeNumber!(gs.cols[cell], number)
+function removeNumberFromBlock!(gs::GameState, cell::Cell, number::Number)
+    gs.blocks[cell] = removeNumber(gs.blocks[cell], number)
+end
+function removeNumberFromRow!(gs::GameState, cell::Cell, number::Number)
+    gs.rows[cell] = removeNumber(gs.rows[cell], number)
+end
+function removeNumberFromCol!(gs::GameState, cell::Cell, number::Number)
+    gs.cols[cell] = removeNumber(gs.cols[cell], number)
+end
 
 
 # Reinstate the number to corresponding (block/row/column) because it is freed from a cell within them.
-reinstateNumberToBlock!(gs::GameState, cell::Cell) = includeNumber!(gs.blocks[cell], gs.cells[cell])
-reinstateNumberToRow!(gs::GameState, cell::Cell) = includeNumber!(gs.rows[cell], gs.cells[cell])
-reinstateNumberToCol!(gs::GameState, cell::Cell) = includeNumber!(gs.cols[cell], gs.cells[cell])
-
+function reinstateNumberToBlock!(gs::GameState, cell::Cell)
+    gs.blocks[cell] = includeNumber(gs.blocks[cell], gs.cells[cell])
+end
+function reinstateNumberToRow!(gs::GameState, cell::Cell)
+    gs.rows[cell] = includeNumber(gs.rows[cell], gs.cells[cell])
+end
+function reinstateNumberToCol!(gs::GameState, cell::Cell)
+    gs.cols[cell] = includeNumber(gs.cols[cell], gs.cells[cell])
+end
 
 # Get the leftover numbers that can be filled into indicated cell.
 getLeftoverNumbers(gs::GameState, cell::Cell) = gs.blocks[cell] ∩ gs.rows[cell] ∩ gs.cols[cell]
 
 
 (∩)(set₁::LeftoverNumbers, set₂::LeftoverNumbers) = LeftoverNumbers(set₁.val_bits & set₂.val_bits)
-function removeNumber!(set::LeftoverNumbers, i::Int)
-    set.val_bits &= ~(1 << i)
+function removeNumber(set::LeftoverNumbers, i::Int)
+    LeftoverNumbers(set.val_bits & (~(1 << i)))
 end
-function includeNumber!(set::LeftoverNumbers, i::Int)
-    set.val_bits |= (1 << i)
+function includeNumber(set::LeftoverNumbers, i::Int)
+    LeftoverNumbers(set.val_bits | (1 << i))
 end
 getSize(set::LeftoverNumbers) = count_ones(set.val_bits)
 
