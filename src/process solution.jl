@@ -12,7 +12,7 @@ function PrintArray(gs::GameState)
         for j in 1:9
             (j % 3 == 1) && print(' ')
             number = gs.cells[Cell(i, j)]
-            ch = number ∈ [1:9] ? '0' + number : '-'
+            ch = number ∈ 1:9 ? '0' + number : '-'
             print(ch)
         end
         println()

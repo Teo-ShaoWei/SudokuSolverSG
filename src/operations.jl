@@ -1,8 +1,5 @@
 # This function helps to construct `getBlock`, while keeping the data `location_in_blocks` static (local, yet compute-once and persistent).
 function getBlock_constructor()
-    # Function not in Julia v0.3, but will be added in Julia v0.4.
-    cld(x::Int, y::Int) = fld((x - 1), y) + 1
-
     location_in_blocks = Array(Int, 9, 9)
     for row in 1:9, col in 1:9
         location_in_blocks[row, col] = 3 * (cld(row, 3) - 1) + cld(col, 3)
@@ -94,7 +91,7 @@ end
 getLeftoverNumbers(gs::GameState, cell::Cell) = gs.blocks[cell] ∩ gs.rows[cell] ∩ gs.cols[cell]
 
 
-(∩)(set₁::LeftoverNumbers, set₂::LeftoverNumbers) = LeftoverNumbers(set₁.val_bits & set₂.val_bits)
+Base.∩(set₁::LeftoverNumbers, set₂::LeftoverNumbers) = LeftoverNumbers(set₁.val_bits & set₂.val_bits)
 function removeNumber(set::LeftoverNumbers, i::Int)
     LeftoverNumbers(set.val_bits & (~(1 << i)))
 end
@@ -110,7 +107,7 @@ function Base.next(iter::LeftoverNumbers, state)
     state &= ~i
     return (trailing_zeros(i), state)
 end
-Base.done(iter::LeftoverNumbers, state) = (state == zero(Uint16))
+Base.done(iter::LeftoverNumbers, state) = (state == zero(UInt16))
 
 
 function swapSequenceEntries!(gs::GameState, S1::Int, S2::Int)

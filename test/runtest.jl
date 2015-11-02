@@ -29,7 +29,7 @@ expectedSolution() = [9 8 7  6 5 4  3 2 1;
 facts("System test.") do
     @time solutions = solveSudoku(generateTestCase())
 
-    @fact solutions[1] => expectedSolution()
+    @fact solutions[1] --> expectedSolution()
 end
 
 end #TestCapsule
