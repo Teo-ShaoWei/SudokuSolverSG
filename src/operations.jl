@@ -12,9 +12,6 @@ getRow(cell::Cell) = cell.row
 getCol(cell::Cell) = cell.col
 
 
-Base.getindex(s::GameState, cell::Cell) = s.data[cell.row, cell.col]
-Base.setindex!(s::GameState, number::Number, cell::Cell) = (s.data[cell.row, cell.col] = number)
-
 Base.getindex(s::CellsState, cell::Cell) = s.data[cell.row, cell.col]
 Base.setindex!(s::CellsState, number::Number, cell::Cell) = (s.data[cell.row, cell.col] = number)
 
@@ -102,12 +99,12 @@ getSize(set::LeftoverNumbers) = count_ones(set.val_bits)
 
 
 Base.start(iter::LeftoverNumbers) = iter.val_bits
-function Base.next(iter::LeftoverNumbers, state)
+function Base.next(iter::LeftoverNumbers, state::UInt16)
     i = state & (-state) #Lowest 1 bit in state.
     state &= ~i
     return (trailing_zeros(i), state)
 end
-Base.done(iter::LeftoverNumbers, state) = (state == zero(UInt16))
+Base.done(iter::LeftoverNumbers, state::UInt16) = (state == zero(UInt16))
 
 
 function swapSequenceEntries!(gs::GameState, S1::Int, S2::Int)

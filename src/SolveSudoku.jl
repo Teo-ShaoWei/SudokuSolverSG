@@ -53,9 +53,9 @@ function placeNextNumber!(gs::GameState, numbersFilled::Int)
     nextCellIndex = chooseNextCell(gs, currentIndex)
     swapSequenceEntries!(gs, currentIndex, nextCellIndex)
 
-    cell = gs.sequence[currentIndex]
+    cell::Cell = gs.sequence[currentIndex]
 
-    leftoverNumbers = getLeftoverNumbers(gs, cell)
+    leftoverNumbers::LeftoverNumbers = getLeftoverNumbers(gs, cell)
     for number in leftoverNumbers
         setCell!(gs, cell, number)
         placeNextNumber!(gs, numbersFilled + 1)
@@ -63,6 +63,8 @@ function placeNextNumber!(gs::GameState, numbersFilled::Int)
     end
 
     swapSequenceEntries!(gs, currentIndex, nextCellIndex)
+
+    return
 end
 
 
@@ -75,8 +77,8 @@ function chooseNextCell(gs::GameState, currentIndex::Int)
     MinTotalChoices = 10 #Max bitCount of any cell is 9.
 
     for T in currentIndex:81
-        cell = gs.sequence[T]
-        leftoverNumbers = getLeftoverNumbers(gs, cell)
+        cell::Cell = gs.sequence[T]
+        leftoverNumbers::LeftoverNumbers = getLeftoverNumbers(gs, cell)
         totalChoices = getSize(leftoverNumbers)
 
         if totalChoices < MinTotalChoices

@@ -48,7 +48,7 @@ end
 
 # The state of the game currently.
 # This will evolve as the Sudoku puzzle is being solved.
-type GameState
+immutable GameState
     cells::CellsState
 
     blocks::ComponentState
